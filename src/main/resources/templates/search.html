@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="author" content="Marcelo Toyoda" />
+	
+    <link href="webjars/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" media="screen"/>
+	<title>Sonda - Toyoda</title>
+</head>
+<body>
+	<div class="container">
+		<h1>Sonda WEB - Consulta</h1>
+		<div id="message-alert" class="alert alert-info">
+			<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>			
+  			<span class="message"></span>
+		</div>		
+		<div th:if="${directions.size() > 0}" class="form-group row">
+			<fieldset class="form-group">
+				<legend>Sondas Por Direção Final - (Facet)</legend>
+				<div class="col-sm-12">						
+					<div class="col-sm-3" th:each="direction: ${directions}">
+						<a href="#" class="linkDirection" th:href="@{/service/direction/{name} (name = ${direction.key})}" th:text="${direction.value + ' - ' + direction.key}"></a>					 
+					</div>													 
+				</div>										  
+			</fieldset>
+		</div>
+		<div class="form-group row">
+			<fieldset class="form-group">
+				<legend>Sondas - Consulta Geral</legend>
+				<div class="col-sm-12">						
+					<div class="col-sm-12">
+						<input class="form-control" type="text"	id="searchField" name="searchField"	maxlength="20"					
+							placeholder="Busca por Termo" style="text-transform: uppercase;"></input>
+						<input id="linkTermo" type="hidden" name="linkTermo" th:value="@{/service/busca}"></input>						 
+					</div>																		 
+				</div>										  
+			</fieldset>
+		</div>	
+		<div>
+     		<button id="search" type="button" class="btn btn-primary btn-block">Pesquisar</button>
+		</div>
+		<br></br>
+		<div id="result">
+		</div>
+	</div>	
+	<script src="http://code.jquery.com/jquery.js"></script>
+    <script src="webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    
+    <script type="text/javascript">
+    	function teste(name){
+    		console.log(name);
+    	}
+    	$(document).ready(function(){    		
+    		$('#result').css("display", "none");
+    		$('#message-alert').css("display", "none");
+    		$('.linkDirection').on('click', function(event){    			
+    			event.preventDefault();
+    			$('#message-alert').css("display", "none");
+    			$('.table').empty();
+    			var link = $(this).attr('href'); 
+    			$.ajax({
+    				type:'GET',
+    				url: link,
+    				dataType: 'json',
+    				success: function(response){
+   						if(response.results.length > 0){
+   							var $tr = '';
+   							var data = response.results;
+   							var html = '<table class="table"><thead><tr><th>Planalto</th><th>Sonda</th><th>Posição Final (X - Y - D)</th></tr></thead><tbody>';
+   							
+   							$.each(data, function(i, item) {
+   						        $tr += '<tr><td>'+item.planalto+'</td><td>'+item.sonda+'</td><td>'+item.coordinateX+ ' - '+item.coordinateY+' - '+item.direction+'</td></tr>';
+   						    });
+   							html += $tr;
+   							html += '</tbody></table>';
+   							$(html).appendTo('#result');	
+   							$('#result').css("display", "block");
+   						}
+    				}
+   				});
+    		});
+    		
+    		$('#search').on('click', function(event){
+    			event.preventDefault();
+    			$('#message-alert').css("display", "none");
+    			$('.table').empty();
+    			var termo = $('#searchField').val();
+    			var link = $('#linkTermo').val()+'?termo='+termo;
+    			if(termo != ''){
+    				$.ajax({
+        				type:'GET',
+        				url: link,
+        				dataType: 'json',
+        				success: function(response){
+       						if(response.results.length > 0){
+       							var $tr = '';
+       							var data = response.results;
+       							var html = '<table class="table"><thead><tr><th>Planalto</th><th>Sonda</th><th>Posição Final (X - Y - D)</th><th>Observação</th></tr></thead><tbody>';
+       							
+       							$.each(data, function(i, item) {
+       						        $tr += '<tr><td>'+item.planalto+'</td><td>'+item.sonda+'</td><td>'+item.coordinateX+ ' - '+item.coordinateY+' - '+item.direction+'</td><td>'+item.positionCurrent+'</td></tr>';
+       						    });
+       							html += $tr;
+       							html += '</tbody></table>';
+       							$(html).appendTo('#result');	
+       							$('#result').css("display", "block");
+       						}else{
+       							$('#message-alert').css("display", "block");
+       							$('.message').text('Não existem dados para a consulta!');
+       						}
+        				}
+       				});	
+    			}    			
+    		});
+    	});
+    </script>    
+</body>
+</html>
