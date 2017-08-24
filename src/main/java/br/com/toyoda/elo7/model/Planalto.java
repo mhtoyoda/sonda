@@ -1,33 +1,21 @@
 package br.com.toyoda.elo7.model;
 
+import java.util.Optional;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Planalto {
 	
-	private String nome;
-	private int coordenadaMinimoX;
-	private int coordenadaMinimoY;
 	private int coordenadaLimitX;
 	private int coordenadaLimitY;
-
-	public Planalto(String nome, int coordenadaLimitX, int coordenadaLimitY) {
-		this.nome = nome;
-		this.coordenadaMinimoX = 0;
-		this.coordenadaLimitX = coordenadaLimitX;
-		this.coordenadaMinimoY = 0;
-		this.coordenadaLimitY = coordenadaLimitY;
-	}
-
-	public String getNome() {
-		return nome;
+	 
+	@JsonCreator
+	public Planalto(@JsonProperty("coordenadaLimitX") int coordenadaLimitX,@JsonProperty("coordenadaLimitY") int coordenadaLimitY) {
+		this.coordenadaLimitX = Optional.ofNullable(coordenadaLimitX).orElse(1);
+		this.coordenadaLimitY = Optional.ofNullable(coordenadaLimitY).orElse(1);
 	}
 	
-	public int getCoordenadaMinimoX() {
-		return coordenadaMinimoX;
-	}
-
-	public int getCoordenadaMinimoY() {
-		return coordenadaMinimoY;
-	}
-
 	public int getCoordenadaLimitX() {
 		return coordenadaLimitX;
 	}
